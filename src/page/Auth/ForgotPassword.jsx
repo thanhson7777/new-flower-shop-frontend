@@ -1,179 +1,132 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { toast } from 'sonner'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Loader2, Mail, CheckCircle } from 'lucide-react'
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
+import { Loader2, Mail } from 'lucide-react'
+import AuthLayout from '~/components/layout/AuthLayout'
+
 import { publicAxiosInstance } from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 
+const forgotPasswordAPI = async (email) => {
+  const response = await publicAxiosInstance.post(`${API_ROOT}/v1/users/forgot-password`, { email })
+  return response.data
+}
+
 export default function ForgotPassword() {
-  const [formData, setFormData] = useState({
-    email: ''
-  })
+  const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [errors, setErrors] = useState({})
-
-  const validateForm = () => {
-    const newErrors = {}
-
-    if (!formData.email) {
-      newErrors.email = 'Email là bắt buộc'
-    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      newErrors.email = 'Email không hợp lệ'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError('')
+    setSuccess('')
 
-    if (!validateForm()) return
+    if (!email) {
+      setError('Vui lòng nhập email!')
+      return
+    }
 
     setIsLoading(true)
-    try {
-      await publicAxiosInstance.post(`${API_ROOT}/v1/users/forgot-password`, {
-        email: formData.email
-      })
 
-      setIsSubmitted(true)
-      toast.success('Đã gửi link đặt lại mật khẩu! Vui lòng kiểm tra email.')
-    } catch (error) {
-      const message = error.response?.data?.message || 'Gửi yêu cầu thất bại. Vui lòng thử lại.'
-      toast.error(message)
-      setErrors({ general: message })
+    try {
+      await forgotPasswordAPI(email)
+      setSuccess('Liên kết đặt lại mật khẩu đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư.')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Không thể gửi email. Vui lòng thử lại.')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }))
-    }
-  }
-
-  // Success state
-  if (isSubmitted) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50/30 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center"
-        >
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-green-500" />
-          </div>
-
-          <h2 className="text-2xl font-bold text-gray-800 mb-3">
-            Đã gửi email!
-          </h2>
-
-          <p className="text-gray-500 mb-6">
-            Chúng tôi đã gửi link đặt lại mật khẩu đến email <span className="font-medium text-gray-700">{formData.email}</span>.
-            Vui lòng kiểm tra hộp thư và click vào link để đặt lại mật khẩu.
-          </p>
-
-          <div className="bg-blue-50 rounded-lg p-4 mb-6">
-            <p className="text-sm text-blue-700">
-              Không nhận được email? Kiểm tra thư mục Spam hoặc{' '}
-              <button
-                onClick={() => setIsSubmitted(false)}
-                className="font-medium underline"
-              >
-                thử lại
-              </button>
-            </p>
-          </div>
-
-          <Link to="/login">
-            <Button variant="outline" className="w-full h-11 border-blue-200 text-blue-600 hover:bg-blue-50">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Quay lại đăng nhập
-            </Button>
-          </Link>
-        </motion.div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50/30 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
+    <AuthLayout>
+      <motion.h2
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8"
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="font-serif text-2xl font-semibold text-gray-800 mb-2 text-center"
       >
-        {/* Mobile Logo */}
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <span className="font-serif text-xl font-semibold text-gray-800">Tiệm Hoa Tươi</span>
-        </div>
+        Quên mật khẩu?
+      </motion.h2>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+        className="text-gray-500 mb-6 text-center"
+      >
+        Nhập email để lấy lại mật khẩu
+      </motion.p>
 
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Quên mật khẩu?
-          </h2>
-          <p className="text-gray-500 text-sm">
-            Nhập email để lấy lại mật khẩu
-          </p>
-        </div>
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm"
+        >
+          {error}
+        </motion.div>
+      )}
 
-        {errors.general && (
-          <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg border border-red-200 mb-4">
-            {errors.general}
+      {success && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-600 text-sm"
+        >
+          {success}
+        </motion.div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Email */}
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            Email <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all bg-gray-50/50"
+              placeholder="example@email.com"
+            />
           </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="example@email.com"
-                value={formData.email}
-                onChange={handleChange}
-                className={`h-11 pl-10 ${errors.email ? 'border-red-500 focus:ring-red-500' : 'focus:ring-blue-500'}`}
-              />
-            </div>
-            {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
-          </div>
-
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="w-full h-11 bg-blue-600 hover:bg-blue-700"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Đang gửi...
-              </>
-            ) : (
-              'Gửi liên kết đặt lại mật khẩu'
-            )}
-          </Button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <Link to="/login" className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700">
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Quay lại đăng nhập
-          </Link>
         </div>
-      </motion.div>
-    </div>
+
+        {/* Submit button */}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-medium rounded-xl transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Đang gửi...
+            </>
+          ) : (
+            'Gửi liên kết đặt lại mật khẩu'
+          )}
+        </button>
+      </form>
+
+      {/* Back to login */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        className="mt-6 text-center"
+      >
+        <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium transition-colors inline-flex items-center gap-2">
+          ← Quay lại đăng nhập
+        </Link>
+      </motion.p>
+    </AuthLayout>
   )
 }
