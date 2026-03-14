@@ -6,6 +6,7 @@ import {
   ShoppingBag,
   Package,
   Tags,
+  FolderTree,
   FileText,
   MessageSquare,
   Star,
@@ -25,7 +26,7 @@ const menuItems = [
   { icon: Users, label: 'Người dùng', path: '/admin/users' },
   { icon: Package, label: 'Sản phẩm', path: '/admin/products' },
   { icon: ShoppingBag, label: 'Đơn hàng', path: '/admin/orders' },
-  { icon: Tags, label: 'Danh mục', path: '/admin/categories' },
+  { icon: Tags, label: 'Danh mục', path: '/admin/categories', iconComponent: FolderTree },
   { icon: Tags, label: 'Mã giảm giá', path: '/admin/coupons' },
   { icon: FileText, label: 'Bài viết', path: '/admin/articles' },
   { icon: Star, label: 'Đánh giá', path: '/admin/reviews' },
@@ -93,7 +94,7 @@ export default function AdminLayout() {
                 }`
               }
             >
-              <item.icon className="w-5 h-5" />
+              {item.iconComponent ? <item.iconComponent className="w-5 h-5" /> : <item.icon className="w-5 h-5" />}
               {item.label}
             </NavLink>
           ))}

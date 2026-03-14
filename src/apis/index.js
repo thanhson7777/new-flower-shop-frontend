@@ -248,28 +248,38 @@ export const getArticlesAdminAPI = async () => {
 }
 
 export const createArticleAPI = async (data) => {
-  const formData = new FormData()
-  if (data.name) formData.append('name', data.name)
-  if (data.slug) formData.append('slug', data.slug)
-  if (data.summary) formData.append('summary', data.summary)
-  if (data.content) formData.append('content', data.content)
-  if (data.status) formData.append('status', data.status)
-  if (data.image) formData.append('image', data.image)
+  // Nếu data đã là FormData, sử dụng trực tiếp
+  let formData
+  if (data instanceof FormData) {
+    formData = data
+  } else {
+    formData = new FormData()
+    if (data.name) formData.append('name', data.name)
+    if (data.slug) formData.append('slug', data.slug)
+    if (data.summary) formData.append('summary', data.summary)
+    if (data.content) formData.append('content', data.content)
+    if (data.status) formData.append('status', data.status)
+    if (data.image) formData.append('image', data.image)
+  }
 
-  const response = await authorizeAxiosInstance.post(`${API_ROOT}/v1/articles`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  })
+  const response = await authorizeAxiosInstance.post(`${API_ROOT}/v1/articles`, formData)
   return response.data
 }
 
 export const updateArticleAPI = async (id, data) => {
-  const formData = new FormData()
-  if (data.name) formData.append('name', data.name)
-  if (data.slug) formData.append('slug', data.slug)
-  if (data.summary) formData.append('summary', data.summary)
-  if (data.content) formData.append('content', data.content)
-  if (data.status) formData.append('status', data.status)
-  if (data.image) formData.append('image', data.image)
+  // Nếu data đã là FormData, sử dụng trực tiếp
+  let formData
+  if (data instanceof FormData) {
+    formData = data
+  } else {
+    formData = new FormData()
+    if (data.name) formData.append('name', data.name)
+    if (data.slug) formData.append('slug', data.slug)
+    if (data.summary) formData.append('summary', data.summary)
+    if (data.content) formData.append('content', data.content)
+    if (data.status) formData.append('status', data.status)
+    if (data.image) formData.append('image', data.image)
+  }
 
   const response = await authorizeAxiosInstance.put(`${API_ROOT}/v1/articles/${id}`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
