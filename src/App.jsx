@@ -15,6 +15,10 @@ import Home from '~/page/Home/Home'
 import AdminLayout from '~/components/layout/AdminLayout'
 import Dashboard from '~/page/Admin/Dashboard'
 import UsersPage from '~/page/Admin/Users'
+import CategoriesPage from '~/page/Admin/Categories'
+import ProductsPage from '~/page/Admin/Products'
+import CouponsPage from '~/page/Admin/Coupons'
+import ArticlesPage from '~/page/Admin/Articles'
 
 function PrivateRoute() {
   const currentUser = useSelector((state) => state.user.currentUser)
@@ -50,11 +54,11 @@ function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="users" element={<UsersPage />} />
-            <Route path="products" element={<div className="p-6">Quản lý sản phẩm</div>} />
+            <Route path="products" element={<ProductsPage />} />
             <Route path="orders" element={<div className="p-6">Quản lý đơn hàng</div>} />
-            <Route path="categories" element={<div className="p-6">Quản lý danh mục</div>} />
-            <Route path="coupons" element={<div className="p-6">Quản lý mã giảm giá</div>} />
-            <Route path="articles" element={<div className="p-6">Quản lý bài viết</div>} />
+            <Route path="categories" element={<CategoriesPage />} />
+            <Route path="coupons" element={<CouponsPage />} />
+            <Route path="articles" element={<ArticlesPage />} />
             <Route path="reviews" element={<div className="p-6">Quản lý đánh giá</div>} />
             <Route path="contacts" element={<div className="p-6">Quản lý liên hệ</div>} />
             <Route path="settings" element={<div className="p-6">Cài đặt</div>} />
