@@ -1,14 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { toast } from 'sonner'
+import { motion } from 'framer-motion'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { loginUserAPI } from '~/redux/user/userSlice'
 import AuthLayout from '~/components/layout/AuthLayout'
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
-import { loginUserAPI } from '~/apis'
-import { setUser } from '~/redux/user/userSlice'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -19,151 +15,154 @@ export default function Login() {
     password: ''
   })
   const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [errors, setErrors] = useState({})
+  const [error, setError] = useState('')
 
-  const validateForm = () => {
-    const newErrors = {}
-
-    if (!formData.email) {
-      newErrors.email = 'Email là bắt buộc'
-    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      newErrors.email = 'Email không hợp lệ'
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Mật khẩu là bắt buộc'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+    if (error) setError('')
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
-    if (!validateForm()) return
-
+    setError('')
     setIsLoading(true)
-    try {
-      const response = await loginUserAPI(formData)
 
-      if (response.status === 200) {
-        dispatch(setUser(response.data))
-        toast.success('Đăng nhập thành công!')
+    try {
+      const result = await dispatch(loginUserAPI(formData)).unwrap()
+      if (result.success) {
         navigate('/')
       }
-    } catch (error) {
-      const message = error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.'
-      toast.error(message)
-      setErrors({ general: message })
+    } catch (err) {
+      setError(err || 'Đăng nhập thất bại. Vui lòng thử lại.')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }))
-    }
-  }
-
-  const footer = (
-    <div className="text-center text-sm text-gray-600">
-      Chưa có tài khoản?{' '}
-      <Link to="/register" className="font-medium text-blue-600 hover:text-blue-700 hover:underline">
-        Đăng ký ngay
-      </Link>
-    </div>
-  )
-
   return (
-    <AuthLayout
-      title="Chào mừng trở lại!"
-      subtitle="Đăng nhập để tiếp tục mua sắm"
-      footer={footer}
-    >
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {errors.general && (
-          <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg border border-red-200">
-            {errors.general}
+    <AuthLayout>
+      <motion.h2
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="font-serif text-2xl font-semibold text-gray-800 mb-2 text-center"
+      >
+        Chào mừng trở lại!
+      </motion.h2>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+        className="text-gray-500 mb-6 text-center"
+      >
+        Đăng nhập để tiếp tục mua sắm
+      </motion.p>
+
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm"
+        >
+          {error}
+        </motion.div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Email */}
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              Email <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all bg-gray-50/50"
+              placeholder="example@email.com"
+            />
           </div>
-        )}
 
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="example@email.com"
-            value={formData.email}
-            onChange={handleChange}
-            className={`h-11 ${errors.email ? 'border-red-500 focus:ring-red-500' : 'focus:ring-blue-500'}`}
-          />
-          {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
-        </div>
+          {/* Password */}
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              Mật khẩu <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-transparent transition-all bg-gray-50/50 pr-12"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
 
-        <div className="space-y-2">
+          {/* Remember me & Forgot password */}
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">Mật khẩu</Label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-600">Ghi nhớ đăng nhập</span>
+            </label>
             <Link
               to="/forgot-password"
-              className="text-xs text-blue-600 hover:text-blue-700 hover:underline"
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
             >
               Quên mật khẩu?
             </Link>
           </div>
-          <div className="relative">
-            <Input
-              id="password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Nhập mật khẩu"
-              value={formData.password}
-              onChange={handleChange}
-              className={`h-11 pr-10 ${errors.password ? 'border-red-500 focus:ring-red-500' : 'focus:ring-blue-500'}`}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
-          </div>
-          {errors.password && <p className="text-xs text-red-500">{errors.password}</p>}
-        </div>
 
-        <div className="flex items-center">
-          <input
-            id="remember"
-            type="checkbox"
-            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-          />
-          <label htmlFor="remember" className="ml-2 text-sm text-gray-600">
-            Ghi nhớ đăng nhập
-          </label>
-        </div>
+          {/* Submit button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-medium rounded-xl transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Đang đăng nhập...
+              </>
+            ) : (
+              'Đăng nhập'
+            )}
+          </button>
+        </form>
 
-        <Button
-          type="submit"
-          disabled={isLoading}
-          className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+        {/* Register link */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="mt-6 text-center text-gray-600"
         >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Đang đăng nhập...
-            </>
-          ) : (
-            'Đăng nhập'
-          )}
-        </Button>
-      </form>
+          Chưa có tài khoản?{' '}
+          <Link to="/register" className="text-blue-600 hover:text-blue-700 font-medium transition-colors">
+            Đăng ký ngay
+          </Link>
+        </motion.p>
     </AuthLayout>
   )
 }

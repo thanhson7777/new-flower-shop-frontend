@@ -1,37 +1,34 @@
-import { useEffect, useState } from 'react'
-import { Link, useSearchParams, useNavigate } from 'react-router-dom'
-import { toast } from 'sonner'
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { CheckCircle, XCircle, Loader2, ArrowRight, Mail } from 'lucide-react'
-import { Button } from '~/components/ui/button'
-import { verifyUserAPI } from '~/apis'
+import { CheckCircle, XCircle, Loader2, Mail, ArrowLeft } from 'lucide-react'
+import { verifyUserAPI, registerUserAPI } from '~/apis'
+import AuthLayout from '~/components/layout/AuthLayout'
 
 export default function Verify() {
   const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
   const email = searchParams.get('email')
   const token = searchParams.get('token')
 
-  const [status, setStatus] = useState('loading') // 'loading' | 'success' | 'error'
-  const [isResending, setIsResending] = useState(false)
+  const [status, setStatus] = useState('loading')
+  const [message, setMessage] = useState('')
+  const [resendLoading, setResendLoading] = useState(false)
 
   useEffect(() => {
-    const verifyAccount = async () => {
-      if (!email || !token) {
-        setStatus('error')
-        return
-      }
+    if (!email || !token) {
+      setStatus('error')
+      setMessage('Liên kết xác thực không hợp lệ.')
+      return
+    }
 
+    const verifyAccount = async () => {
       try {
-        const response = await verifyUserAPI({ email, token })
-        if (response.status === 200) {
-          setStatus('success')
-          toast.success('Xác thực tài khoản thành công!')
-        }
+        await verifyUserAPI({ email, token })
+        setStatus('success')
+        setMessage('Tài khoản của bạn đã được xác thực thành công!')
       } catch (error) {
         setStatus('error')
-        const message = error.response?.data?.message || 'Xác thực thất bại. Link có thể đã hết hạn.'
-        toast.error(message)
+        setMessage(error.response?.data?.message || 'Xác thực thất bại. Liên kết có thể đã hết hạn.')
       }
     }
 
@@ -39,113 +36,103 @@ export default function Verify() {
   }, [email, token])
 
   const handleResendEmail = async () => {
-    // TODO: Implement resend verification email
-    toast.info('Tính năng đang được phát triển')
+    if (!email) return
+
+    setResendLoading(true)
+    try {
+      await registerUserAPI({ email, password: '', phone: '' })
+      setMessage('Email xác thực đã được gửi lại. Vui lòng kiểm tra hộp thư.')
+    } catch (error) {
+      setMessage(error.response?.data?.message || 'Không thể gửi lại email xác thực.')
+    } finally {
+      setResendLoading(false)
+    }
   }
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50/30 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center"
-        >
-          <Loader2 className="w-16 h-16 text-blue-600 animate-spin mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-800">Đang xác thực tài khoản...</h2>
-          <p className="text-gray-500 mt-2">Vui lòng chờ trong giây lát</p>
-        </motion.div>
-      </div>
-    )
-  }
-
-  if (status === 'error') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50/30 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center"
-        >
-          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <XCircle className="w-10 h-10 text-red-500" />
-          </div>
-
-          <h2 className="text-2xl font-bold text-gray-800 mb-3">
-            Xác thực thất bại
-          </h2>
-
-          <p className="text-gray-500 mb-6">
-            Link xác thực đã hết hạn hoặc không hợp lệ. Vui lòng yêu cầu gửi lại email xác thực.
-          </p>
-
-          {email && (
-            <p className="text-sm text-gray-400 mb-6">
-              Email: <span className="font-medium text-gray-600">{email}</span>
-            </p>
-          )}
-
-          <div className="space-y-3">
-            <Button
-              onClick={handleResendEmail}
-              disabled={isResending}
-              className="w-full h-11 bg-blue-600 hover:bg-blue-700"
-            >
-              {isResending ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Đang gửi...
-                </>
-              ) : (
-                <>
-                  <Mail className="w-4 h-4 mr-2" />
-                  Gửi lại email xác thực
-                </>
-              )}
-            </Button>
-
-            <Link to="/login">
-              <Button
-                variant="outline"
-                className="w-full h-11 border-blue-200 text-blue-600 hover:bg-blue-50"
-              >
-                <ArrowRight className="w-4 h-4 mr-2" />
-                Quay lại đăng nhập
-              </Button>
-            </Link>
-          </div>
-        </motion.div>
-      </div>
-    )
-  }
-
-  // Success state
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50/30 flex items-center justify-center p-4">
+    <AuthLayout>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4 }}
+        className="text-center py-4"
       >
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <CheckCircle className="w-10 h-10 text-green-500" />
-        </div>
+        {status === 'loading' && (
+          <>
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-blue-100 flex items-center justify-center">
+              <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+            </div>
+            <h2 className="font-serif text-xl font-semibold text-gray-800 mb-2">
+              Đang xác thực tài khoản...
+            </h2>
+            <p className="text-gray-500 text-sm">
+              Vui lòng chờ trong giây lát
+            </p>
+          </>
+        )}
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-3">
-          Xác thực thành công!
-        </h2>
+        {status === 'success' && (
+          <>
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
+              <CheckCircle className="w-10 h-10 text-green-500" />
+            </div>
+            <h2 className="font-serif text-xl font-semibold text-gray-800 mb-2">
+              Xác thực tài khoản thành công!
+            </h2>
+            <p className="text-gray-500 text-sm mb-6">
+              {message}
+            </p>
+            <Link
+              to="/login"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-medium rounded-xl transition-all shadow-lg shadow-blue-500/25"
+            >
+              Đăng nhập ngay
+            </Link>
+          </>
+        )}
 
-        <p className="text-gray-500 mb-6">
-          Chúc mừng! Tài khoản của bạn đã được kích hoạt thành công. Bây giờ bạn có thể đăng nhập và trải nghiệm mua sắm tại Tiệm Hoa Tươi.
-        </p>
-
-        <Link to="/login">
-          <Button className="w-full h-11 bg-blue-600 hover:bg-blue-700">
-            <ArrowRight className="w-4 h-4 mr-2" />
-            Đăng nhập ngay
-          </Button>
-        </Link>
+        {status === 'error' && (
+          <>
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-100 flex items-center justify-center">
+              <XCircle className="w-10 h-10 text-red-500" />
+            </div>
+            <h2 className="font-serif text-xl font-semibold text-gray-800 mb-2">
+              Xác thực thất bại
+            </h2>
+            <p className="text-gray-500 text-sm mb-6">
+              {message}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              {email && (
+                <button
+                  onClick={handleResendEmail}
+                  disabled={resendLoading}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 border-2 border-blue-500 text-blue-600 font-medium rounded-xl transition-all disabled:opacity-50"
+                >
+                  {resendLoading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Đang gửi...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-5 h-5" />
+                      Gửi lại email
+                    </>
+                  )}
+                </button>
+              )}
+              <Link
+                to="/login"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-all"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                Đăng nhập
+              </Link>
+            </div>
+          </>
+        )}
       </motion.div>
-    </div>
+    </AuthLayout>
   )
 }
