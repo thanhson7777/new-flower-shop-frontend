@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react'
+import banner1 from '~/assets/banner/banner1.jpg'
+import banner2 from '~/assets/banner/banner2.jpg'
+import banner3 from '~/assets/banner/banner3.jpg'
 
 const defaultBanners = [
   {
@@ -11,7 +14,7 @@ const defaultBanners = [
     description: 'Khám phá bộ sưu tập hoa tươi đẹp nhất dành cho bạn',
     cta: 'Mua ngay',
     ctaLink: '/products',
-    image: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1600',
+    image: banner1,
     bgColor: 'from-blue-900/90 to-blue-800/70'
   },
   {
@@ -21,7 +24,7 @@ const defaultBanners = [
     description: 'Chọn món quà hoàn hảo cho người thân yêu',
     cta: 'Xem ngay',
     ctaLink: '/products?category=birthday',
-    image: 'https://images.unsplash.com/photo-1522748906645-95d8adfd52c7?w=1600',
+    image: banner2,
     bgColor: 'from-pink-900/90 to-purple-900/70'
   },
   {
@@ -31,7 +34,7 @@ const defaultBanners = [
     description: 'Tôn vinh ngày trọng đại của bạn với những bó hoa đẹp nhất',
     cta: 'Tìm hiểu thêm',
     ctaLink: '/products?category=wedding',
-    image: 'https://images.unsplash.com/photo-1519225468359-69631e0c2b81?w=1600',
+    image: banner3,
     bgColor: 'from-rose-900/90 to-pink-900/70'
   }
 ]
@@ -172,11 +175,10 @@ export default function HeroSection({ banners = defaultBanners }) {
           <button
             key={banner.id}
             onClick={() => goToSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              index === currentIndex
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentIndex
                 ? 'bg-white w-8'
                 : 'bg-white/40 hover:bg-white/60'
-            }`}
+              }`}
           />
         ))}
       </div>

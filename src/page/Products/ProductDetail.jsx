@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { getProductByIdAPI, getRelatedProductsAPI } from '~/apis'
+import { getProductByIdAPI, getRelatedProductsAPI, addToCartAPI } from '~/apis'
 import { addToCart as addToCartAction } from '~/redux/cart/cartSlice'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 import { useWishlist } from '~/contexts/WishlistContext'
+import { toast } from 'sonner'
 import { Star, Heart, ShoppingCart, Minus, Plus, ChevronRight, Check } from 'lucide-react'
 
 const formatPrice = (price) => {
@@ -12,7 +14,9 @@ const formatPrice = (price) => {
 
 export default function ProductDetail() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const dispatch = useDispatch()
+  const currentUser = useSelector(selectCurrentUser)
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist()
 
   const [product, setProduct] = useState(null)
@@ -22,7 +26,6 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState(null)
   const [quantity, setQuantity] = useState(1)
   const [isZoomed, setIsZoomed] = useState(false)
-  const [addedToCart, setAddedToCart] = useState(false)
 
   // Fetch product details
   useEffect(() => {
@@ -62,18 +65,44 @@ export default function ProductDetail() {
   }, [product, id])
 
   // Handle add to cart
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!selectedSize) return
+
+    // Check if user is logged in
+    if (!currentUser) {
+      toast.error('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng')
+      navigate('/login', { state: { from: `/products/${id}` } })
+      return
+    }
+
+    // Check if quantity exceeds stock
+    if (quantity > selectedSize.stockQuantity) {
+      toast.error(`Số lượng vượt quá tồn kho. Chỉ còn ${selectedSize.stockQuantity} sản phẩm`)
+      return
+    }
+
+    // Dispatch to Redux (for immediate UI update)
     dispatch(addToCartAction({
       productId: product._id,
       name: product.name,
       image: product.images?.[0] || product.image,
-      volume: selectedSize.size,
+      size: selectedSize.size,
       price: selectedSize.price,
       quantity: quantity
     }))
-    setAddedToCart(true)
-    setTimeout(() => setAddedToCart(false), 2000)
+
+    // Call API (to save to database) – productId phải là string
+    try {
+      const payload = {
+        productId: String(product._id),
+        size: String(selectedSize.size).trim(),
+        quantity: Number(quantity)
+      }
+      await addToCartAPI(payload)
+      toast.success(`Đã thêm "${product.name}" vào giỏ hàng!`)
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Thêm vào giỏ hàng thất bại')
+    }
   }
 
   // Handle wishlist
@@ -260,23 +289,10 @@ export default function ProductDetail() {
                 <button
                   onClick={handleAddToCart}
                   disabled={!selectedSize || selectedSize.stockQuantity === 0}
-                  className={`flex-1 flex items-center justify-center gap-2 py-4 px-8 rounded-xl font-semibold transition-all ${
-                    addedToCart
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  className="flex-1 flex items-center justify-center gap-2 py-4 px-8 rounded-xl font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {addedToCart ? (
-                    <>
-                      <Check className="w-5 h-5" />
-                      Đã thêm vào giỏ
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="w-5 h-5" />
-                      Thêm vào giỏ
-                    </>
-                  )}
+                  <ShoppingCart className="w-5 h-5" />
+                  Thêm vào giỏ
                 </button>
 
                 {/* Wishlist Button */}
@@ -325,7 +341,7 @@ export default function ProductDetail() {
               <div className="flex items-center gap-2">
                 <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
                 <span className="font-semibold">{product.ratingAverage?.toFixed(1) || 0}</span>
-                <span className="text-gray-500">({product.totalReviews || 0} đánh giá)</span>
+                <span className="text-gray-500">({product.ratingQuantity || 0} đánh giá)</span>
               </div>
             </div>
 
@@ -336,11 +352,11 @@ export default function ProductDetail() {
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
                         <span className="text-blue-600 font-semibold">
-                          {review.userId?.name?.charAt(0) || 'U'}
+                          {review.user?.displayName?.charAt(0) || review.user?.name?.charAt(0) || 'U'}
                         </span>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-800">{review.userId?.name || 'Khách hàng'}</p>
+                        <p className="font-medium text-gray-800">{review.user?.displayName || review.user?.name || 'Khách hàng'}</p>
                         <div className="flex items-center gap-1">
                           {[1, 2, 3, 4, 5].map((star) => (
                             <Star
@@ -354,7 +370,13 @@ export default function ProductDetail() {
                         </div>
                       </div>
                     </div>
-                    <p className="text-gray-600">{review.comment}</p>
+                    <p className="text-gray-600">{review.content}</p>
+                    {review.adminReply && (
+                      <div className="mt-3 pl-4 border-l-2 border-blue-200">
+                        <p className="text-sm font-medium text-blue-600">Phản hồi:</p>
+                        <p className="text-sm text-gray-600">{review.adminReply.content}</p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -434,7 +456,7 @@ function RelatedProductCard({ product }) {
                   productId: product._id,
                   name: product.name,
                   image: mainImage,
-                  volume: product.variants?.[0]?.size || 'M',
+                  size: product.variants?.[0]?.size || 'M',
                   price: product.variants?.[0]?.price || product.referencePrice,
                   quantity: 1
                 }))

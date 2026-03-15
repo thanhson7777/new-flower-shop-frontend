@@ -273,7 +273,7 @@ export const getOrdersAdminAPI = async ({ page = 1, limit = 10, status = 'ALL' }
 }
 
 export const getOrderByIdAPI = async (id) => {
-  const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/orders/${id}`)
+  const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/orders/me/${id}`)
   return response.data
 }
 
@@ -375,6 +375,16 @@ export const getReviewsAPI = async () => {
   return response.data
 }
 
+export const createReviewAPI = async (data) => {
+  const response = await authorizeAxiosInstance.post(`${API_ROOT}/v1/reviews`, data)
+  return response.data
+}
+
+export const getReviewsByOrderIdAPI = async (orderId) => {
+  const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/reviews/order/${orderId}`)
+  return response.data
+}
+
 export const getPublicReviewsAPI = async (limit = 6) => {
   const response = await publicAxiosInstance.get(`${API_ROOT}/v1/reviews/public?limit=${limit}`)
   return response.data
@@ -397,27 +407,27 @@ export const deleteReviewAPI = async (id) => {
 
 // Cart APIs
 export const getCartAPI = async () => {
-  const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/cart`)
+  const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/carts`)
   return response.data
 }
 
 export const addToCartAPI = async (data) => {
-  const response = await authorizeAxiosInstance.post(`${API_ROOT}/v1/cart/add`, data)
+  const response = await authorizeAxiosInstance.post(`${API_ROOT}/v1/carts/add`, data)
   return response.data
 }
 
 export const updateCartAPI = async (data) => {
-  const response = await authorizeAxiosInstance.put(`${API_ROOT}/v1/cart/update`, data)
+  const response = await authorizeAxiosInstance.put(`${API_ROOT}/v1/carts/update`, data)
   return response.data
 }
 
 export const removeFromCartAPI = async (data) => {
-  const response = await authorizeAxiosInstance.delete(`${API_ROOT}/v1/cart/remove`, { data })
+  const response = await authorizeAxiosInstance.delete(`${API_ROOT}/v1/carts/remove`, { data })
   return response.data
 }
 
 export const syncCartAPI = async (data) => {
-  const response = await authorizeAxiosInstance.post(`${API_ROOT}/v1/cart/sync`, data)
+  const response = await authorizeAxiosInstance.post(`${API_ROOT}/v1/carts/sync`, data)
   return response.data
 }
 
@@ -431,22 +441,39 @@ export const getMyOrdersAPI = async () => {
   return response.data
 }
 
+export const getMyOrderByIdAPI = async (orderId) => {
+  const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/orders/me/${orderId}`)
+  return response.data
+}
+
 export const cancelOrderAPI = async (orderId) => {
   const response = await authorizeAxiosInstance.put(`${API_ROOT}/v1/orders/${orderId}/cancel`)
   return response.data
 }
 
 export const getProvincesAPI = async () => {
-  const response = await publicAxiosInstance.get(`${API_ROOT}/v1/locations/provinces`)
-  return response.data
+  // Public API - provinces.open-api.vn
+  const response = await fetch('https://provinces.open-api.vn/api/?depth=1')
+  const data = await response.json()
+  return { data: { success: true, data } }
 }
 
 export const getDistrictsAPI = async (provinceCode) => {
-  const response = await publicAxiosInstance.get(`${API_ROOT}/v1/locations/districts/${provinceCode}`)
-  return response.data
+  // Public API - provinces.open-api.vn (depth=2 để có districts)
+  const code = provinceCode != null ? String(provinceCode) : ''
+  if (!code) return { data: { success: true, data: [] } }
+  const response = await fetch(`https://provinces.open-api.vn/api/p/${code}?depth=2`)
+  const data = await response.json()
+  const list = Array.isArray(data?.districts) ? data.districts : (data?.data?.districts || [])
+  return { data: { success: true, data: list } }
 }
 
 export const getWardsAPI = async (districtCode) => {
-  const response = await publicAxiosInstance.get(`${API_ROOT}/v1/locations/wards/${districtCode}`)
-  return response.data
+  // Public API - provinces.open-api.vn (depth=2 để có wards)
+  const code = districtCode != null ? String(districtCode) : ''
+  if (!code) return { data: { success: true, data: [] } }
+  const response = await fetch(`https://provinces.open-api.vn/api/d/${code}?depth=2`)
+  const data = await response.json()
+  const list = Array.isArray(data?.wards) ? data.wards : (data?.data?.wards || [])
+  return { data: { success: true, data: list } }
 }

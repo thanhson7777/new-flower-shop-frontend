@@ -1,12 +1,14 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { motion } from 'framer-motion'
 import { ShoppingCart, Heart, Eye, Star } from 'lucide-react'
 import { addToCart } from '~/redux/cart/cartSlice'
+import { toast } from 'sonner'
 
 export default function ProductCard({ product, index = 0 }) {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { currentUser } = useSelector((state) => state.user)
   const [isWishlisted, setIsWishlisted] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
@@ -18,8 +20,8 @@ export default function ProductCard({ product, index = 0 }) {
     name,
     images = [],
     variants = [],
-    averageRating = 0,
-    reviewCount = 0
+    ratingAverage = 0,
+    ratingQuantity = 0
   } = product
 
   const primaryImage = images?.[0] || 'https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=400'
@@ -31,7 +33,8 @@ export default function ProductCard({ product, index = 0 }) {
     e.stopPropagation()
 
     if (!currentUser) {
-      window.location.href = '/login'
+      toast.error('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng')
+      navigate('/login', { state: { from: window.location.pathname } })
       return
     }
 
@@ -41,10 +44,11 @@ export default function ProductCard({ product, index = 0 }) {
         name,
         price,
         image: primaryImage,
-        volume: firstVariant.volume,
+        size: firstVariant.size,
         quantity: 1,
         stockQuantity: firstVariant.stockQuantity
       }))
+      toast.success(`Đã thêm "${name}" vào giỏ hàng!`)
     }
   }
 
@@ -151,14 +155,14 @@ export default function ProductCard({ product, index = 0 }) {
                 <Star
                   key={star}
                   className={`w-4 h-4 ${
-                    star <= Math.round(averageRating)
+                    star <= Math.round(ratingAverage)
                       ? 'fill-yellow-400 text-yellow-400'
                       : 'text-gray-300'
                   }`}
                 />
               ))}
               <span className="text-xs text-gray-500 ml-1">
-                ({reviewCount || 0})
+                ({ratingQuantity || 0})
               </span>
             </div>
           </div>

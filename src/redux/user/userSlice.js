@@ -52,6 +52,9 @@ export const userSlice = createSlice({
       state.currentUser = null;
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+    },
+    updateUser: (state, action) => {
+      state.currentUser = { ...state.currentUser, ...action.payload }
     }
   },
 
@@ -89,7 +92,7 @@ export const userSlice = createSlice({
   }
 })
 
-export const { clearUser } = userSlice.actions;
+export const { clearUser, updateUser } = userSlice.actions;
 
 export const selectCurrentUser = (state) => {
   return state.user.currentUser

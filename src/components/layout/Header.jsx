@@ -24,6 +24,7 @@ import { searchProductsAPI } from '~/apis'
 const navLinks = [
   { label: 'Trang chủ', path: '/' },
   { label: 'Sản phẩm', path: '/products' },
+  { label: 'Blog', path: '/blog' },
   { label: 'Giới thiệu', path: '/about' },
   { label: 'Liên hệ', path: '/contact' },
 ]
@@ -46,7 +47,8 @@ export default function Header() {
 
   searchQueryRef.current = searchQuery
 
-  const cartCount = cartItems.reduce((total, item) => total + (item.quantity || 1), 0)
+  // Chỉ đếm số dòng sản phẩm (distinct items), không đếm tổng số lượng
+  const cartCount = cartItems.length
 
   // Debounced search – chỉ cập nhật kết quả nếu response đúng với từ khóa hiện tại (tránh race condition)
   useEffect(() => {

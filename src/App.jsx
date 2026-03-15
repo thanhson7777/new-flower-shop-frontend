@@ -13,9 +13,19 @@ import Register from '~/page/Auth/Register'
 import Verify from '~/page/Auth/Verify'
 import ForgotPassword from '~/page/Auth/ForgotPassword'
 import ResetPassword from '~/page/Auth/ResetPassword'
+import Profile from '~/page/Auth/Profile'
+import Settings from '~/page/Auth/UserSettings'
 import Home from '~/page/Home/Home'
+import Cart from '~/page/Cart/Cart'
+import Checkout from '~/page/Checkout/Checkout'
+import OrderSuccess from '~/page/Checkout/OrderSuccess'
+import OrderHistory from '~/page/Orders/OrderHistory'
 import Products from '~/page/Products/Products'
 import ProductDetail from '~/page/Products/ProductDetail'
+import Blog from '~/page/Blog/Blog'
+import BlogDetail from '~/page/Blog/BlogDetail'
+import About from '~/page/About/About'
+import Contact from '~/page/Contact/Contact'
 
 // Admin Pages
 import Dashboard from '~/page/Admin/Dashboard'
@@ -61,9 +71,16 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
-          <Route path="/about" element={<div className="p-8 text-center">Giới thiệu</div>} />
-          <Route path="/contact" element={<div className="p-8 text-center">Liên hệ</div>} />
-          <Route path="/cart" element={<div className="p-8 text-center">Giỏ hàng</div>} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:id" element={<BlogDetail />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-success" element={<OrderSuccess />} />
+          <Route path="/orders" element={<OrderHistory />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
 
         {/* Admin Routes */}

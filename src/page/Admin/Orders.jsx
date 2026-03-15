@@ -63,27 +63,27 @@ import {
 const STATUS_ORDER_CONFIG = {
   PENDING: {
     label: 'Chờ xác nhận',
-    color: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    color: 'bg-amber-100 text-amber-700 border-amber-200',
     icon: Clock
   },
   CONFIRMED: {
     label: 'Đã xác nhận',
-    color: 'bg-blue-100 text-blue-700 border-blue-200',
+    color: 'bg-sky-100 text-sky-700 border-sky-200',
     icon: CheckCircle
   },
   ARRANGING_FLOWERS: {
     label: 'Đang cắm hoa',
-    color: 'bg-purple-100 text-purple-700 border-purple-200',
+    color: 'bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200',
     icon: Scissors
   },
   SHIPPING: {
     label: 'Đang giao',
-    color: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+    color: 'bg-violet-100 text-violet-700 border-violet-200',
     icon: Truck
   },
   DELIVERED: {
     label: 'Đã giao',
-    color: 'bg-green-100 text-green-700 border-green-200',
+    color: 'bg-emerald-100 text-emerald-700 border-emerald-200',
     icon: CheckCircle
   },
   CANCELLED: {
@@ -138,7 +138,7 @@ const formatCurrency = (amount) => {
   return new Intl.NumberFormat('vi-VN', {
     style: 'currency',
     currency: 'VND'
-  }).replace('VND', 'đ')
+  }).format(amount).replace('VND', 'đ')
 }
 
 const truncateText = (text, maxLength = 50) => {
