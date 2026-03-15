@@ -174,6 +174,22 @@ export const changePasswordAPI = async (data) => {
   return response.data
 }
 
+export const updateUserProfileAPI = async (data) => {
+  let payload = data
+  if (data instanceof FormData) {
+    payload = data
+  } else {
+    const formData = new FormData()
+    if (data.displayName != null) formData.append('displayName', data.displayName)
+    if (data.phone != null) formData.append('phone', data.phone)
+    if (data.address != null) formData.append('address', data.address || '')
+    if (data.avatar) formData.append('avatar', data.avatar)
+    payload = formData
+  }
+  const response = await authorizeAxiosInstance.put(`${API_ROOT}/v1/users/update`, payload)
+  return response.data
+}
+
 // Coupon APIs
 export const getCouponsAPI = async () => {
   const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/coupons`)
