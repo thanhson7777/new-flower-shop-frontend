@@ -83,7 +83,7 @@ export const userSlice = createSlice({
     })
 
     builder.addCase(updateUserAPI.fulfilled, (state, action) => {
-      const updatedUser = action.payload.data || action.payload
+      const updatedUser = action.payload
       state.currentUser = { ...state.currentUser, ...updatedUser }
     })
   }

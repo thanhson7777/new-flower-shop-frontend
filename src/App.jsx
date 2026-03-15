@@ -19,6 +19,10 @@ import CategoriesPage from '~/page/Admin/Categories'
 import ProductsPage from '~/page/Admin/Products'
 import CouponsPage from '~/page/Admin/Coupons'
 import ArticlesPage from '~/page/Admin/Articles'
+import ContactsPage from '~/page/Admin/Contacts'
+import OrdersPage from '~/page/Admin/Orders'
+import ReviewsPage from '~/page/Admin/Reviews'
+import SettingsPage from '~/page/Admin/Settings'
 
 function PrivateRoute() {
   const currentUser = useSelector((state) => state.user.currentUser)
@@ -55,12 +59,14 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="users" element={<UsersPage />} />
             <Route path="products" element={<ProductsPage />} />
-            <Route path="orders" element={<div className="p-6">Quản lý đơn hàng</div>} />
+            <Route path="orders" element={<OrdersPage />} />
+          <Route path="reviews" element={<ReviewsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
             <Route path="categories" element={<CategoriesPage />} />
             <Route path="coupons" element={<CouponsPage />} />
             <Route path="articles" element={<ArticlesPage />} />
             <Route path="reviews" element={<div className="p-6">Quản lý đánh giá</div>} />
-            <Route path="contacts" element={<div className="p-6">Quản lý liên hệ</div>} />
+            <Route path="contacts" element={<ContactsPage />} />
             <Route path="settings" element={<div className="p-6">Cài đặt</div>} />
           </Route>
         </Route>

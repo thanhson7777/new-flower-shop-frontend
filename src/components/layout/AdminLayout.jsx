@@ -42,9 +42,14 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
 
-  const handleLogout = () => {
-    dispatch(logoutUserAPI())
-    navigate('/login')
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUserAPI()).unwrap()
+      navigate('/login')
+    } catch (error) {
+      console.error('Logout error:', error)
+      navigate('/login')
+    }
   }
 
   return (
@@ -154,9 +159,17 @@ export default function AdminLayout() {
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-xl transition-colors"
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-medium">
-                {currentUser?.displayName?.charAt(0) || 'A'}
-              </div>
+              {currentUser?.avatar ? (
+                <img
+                  src={currentUser.avatar}
+                  alt={currentUser.displayName}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-medium">
+                  {currentUser?.displayName?.charAt(0) || 'A'}
+                </div>
+              )}
               <span className="hidden sm:block text-sm font-medium text-gray-700">
                 {currentUser?.displayName || 'Admin'}
               </span>
