@@ -3,6 +3,10 @@ import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { useSelector } from 'react-redux'
 
+// Layouts
+import MainLayout from '~/components/layout/MainLayout'
+import AdminLayout from '~/components/layout/AdminLayout'
+
 // Auth Pages
 import Login from '~/page/Auth/Login'
 import Register from '~/page/Auth/Register'
@@ -10,9 +14,10 @@ import Verify from '~/page/Auth/Verify'
 import ForgotPassword from '~/page/Auth/ForgotPassword'
 import ResetPassword from '~/page/Auth/ResetPassword'
 import Home from '~/page/Home/Home'
+import Products from '~/page/Products/Products'
+import ProductDetail from '~/page/Products/ProductDetail'
 
 // Admin Pages
-import AdminLayout from '~/components/layout/AdminLayout'
 import Dashboard from '~/page/Admin/Dashboard'
 import UsersPage from '~/page/Admin/Users'
 import CategoriesPage from '~/page/Admin/Categories'
@@ -24,6 +29,7 @@ import OrdersPage from '~/page/Admin/Orders'
 import ReviewsPage from '~/page/Admin/Reviews'
 import SettingsPage from '~/page/Admin/Settings'
 
+// Admin Route Guard
 function PrivateRoute() {
   const currentUser = useSelector((state) => state.user.currentUser)
 
@@ -50,8 +56,15 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Home */}
-        <Route path="/" element={<Home />} />
+        {/* Public Routes with MainLayout */}
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/about" element={<div className="p-8 text-center">Giới thiệu</div>} />
+          <Route path="/contact" element={<div className="p-8 text-center">Liên hệ</div>} />
+          <Route path="/cart" element={<div className="p-8 text-center">Giỏ hàng</div>} />
+        </Route>
 
         {/* Admin Routes */}
         <Route element={<PrivateRoute />}>
@@ -60,14 +73,12 @@ function App() {
             <Route path="users" element={<UsersPage />} />
             <Route path="products" element={<ProductsPage />} />
             <Route path="orders" element={<OrdersPage />} />
-          <Route path="reviews" element={<ReviewsPage />} />
-          <Route path="settings" element={<SettingsPage />} />
+            <Route path="reviews" element={<ReviewsPage />} />
+            <Route path="settings" element={<SettingsPage />} />
             <Route path="categories" element={<CategoriesPage />} />
             <Route path="coupons" element={<CouponsPage />} />
             <Route path="articles" element={<ArticlesPage />} />
-            <Route path="reviews" element={<div className="p-6">Quản lý đánh giá</div>} />
             <Route path="contacts" element={<ContactsPage />} />
-            <Route path="settings" element={<div className="p-6">Cài đặt</div>} />
           </Route>
         </Route>
 
