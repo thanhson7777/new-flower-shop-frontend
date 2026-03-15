@@ -77,12 +77,47 @@ export const getProductsAdminAPI = async () => {
 }
 
 export const getProductByIdAPI = async (id) => {
-  const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/products/${id}`)
+  const response = await publicAxiosInstance.get(`${API_ROOT}/v1/products/${id}`)
+  return response.data
+}
+
+export const getRelatedProductsAPI = async (id, categoryId, limit = 4) => {
+  const params = new URLSearchParams()
+  params.append('categoryId', categoryId)
+  params.append('limit', limit)
+  const response = await publicAxiosInstance.get(`${API_ROOT}/v1/products/related/${id}?${params.toString()}`)
   return response.data
 }
 
 export const getProductsAPI = async () => {
   const response = await publicAxiosInstance.get(`${API_ROOT}/v1/products`)
+  return response.data
+}
+
+export const getProductsWithFilterAPI = async ({ page = 1, itemsPerPage = 12, sort = 'newest', category = '', search = '' } = {}) => {
+  const params = new URLSearchParams()
+  params.append('page', page)
+  params.append('itemsPerPage', itemsPerPage)
+  if (sort) params.append('sort', sort)
+  if (category) params.append('category', category)
+  if (search) params.append('search', search)
+
+  const response = await publicAxiosInstance.get(`${API_ROOT}/v1/products?${params.toString()}`)
+  return response.data
+}
+
+export const getNewestProductsAPI = async (itemsPerPage = 8) => {
+  const response = await publicAxiosInstance.get(`${API_ROOT}/v1/products?sort=newest&itemsPerPage=${itemsPerPage}`)
+  return response.data
+}
+
+export const getBestSellerProductsAPI = async (itemsPerPage = 8) => {
+  const response = await publicAxiosInstance.get(`${API_ROOT}/v1/products?sort=bestseller&itemsPerPage=${itemsPerPage}`)
+  return response.data
+}
+
+export const searchProductsAPI = async (keyword, limit = 5) => {
+  const response = await publicAxiosInstance.get(`${API_ROOT}/v1/products?search=${encodeURIComponent(keyword)}&itemsPerPage=${limit}`)
   return response.data
 }
 
@@ -250,6 +285,11 @@ export const updateOrderStatusAPI = async (id, status) => {
 // Article APIs
 export const getArticlesAPI = async () => {
   const response = await publicAxiosInstance.get(`${API_ROOT}/v1/articles`)
+  return response.data
+}
+
+export const getRecentArticlesAPI = async (limit = 3) => {
+  const response = await publicAxiosInstance.get(`${API_ROOT}/v1/articles?limit=${limit}&sort=newest`)
   return response.data
 }
 
