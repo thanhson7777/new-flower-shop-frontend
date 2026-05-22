@@ -29,16 +29,16 @@ import {
   DialogTitle,
   DialogFooter
 } from '~/components/ui/Dialog'
-import { Button } from '~/components/ui/Button'
-import { Input } from '~/components/ui/Input'
-import { Label } from '~/components/ui/Label'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '~/components/ui/Select'
+} from '~/components/ui/select'
 import { Badge } from '~/components/ui/badge'
 import { Textarea } from '~/components/ui/textarea'
 import {
@@ -46,7 +46,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle
-} from '~/components/ui/Card'
+} from '~/components/ui/card'
 import {
   Table,
   TableBody,

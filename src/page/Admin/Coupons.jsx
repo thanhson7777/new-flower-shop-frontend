@@ -26,16 +26,16 @@ import {
   DialogTitle,
   DialogFooter
 } from '~/components/ui/Dialog'
-import { Button } from '~/components/ui/Button'
-import { Input } from '~/components/ui/Input'
-import { Label } from '~/components/ui/Label'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '~/components/ui/Select'
+} from '~/components/ui/select'
 
 // Modal thêm/sửa mã giảm giá
 const CouponFormModal = ({ open, onClose, coupon, onSuccess }) => {

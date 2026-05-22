@@ -24,15 +24,15 @@ import {
   DialogTitle,
   DialogFooter
 } from '~/components/ui/Dialog'
-import { Button } from '~/components/ui/Button'
-import { Input } from '~/components/ui/Input'
-import { Label } from '~/components/ui/Label'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader
-} from '~/components/ui/Card'
+} from '~/components/ui/card'
 
 // Modal thêm/sửa category
 const CategoryFormModal = ({ open, onClose, category, onSuccess }) => {

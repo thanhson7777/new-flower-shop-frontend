@@ -18,22 +18,22 @@ import {
 } from '~/apis'
 import { selectCurrentUser, updateUserAPI, logoutUserAPI } from '~/redux/user/userSlice'
 import { toast } from 'sonner'
-import { Button } from '~/components/ui/Button'
-import { Input } from '~/components/ui/Input'
-import { Label } from '~/components/ui/Label'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle
-} from '~/components/ui/Card'
+} from '~/components/ui/card'
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger
-} from '~/components/ui/Tabs'
+} from '~/components/ui/tabs'
 import {
   AlertDialog,
   AlertDialogAction,
